@@ -17,17 +17,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-enum class ApiStatus { LOADING, DONE, ERROR }
 
 @ExperimentalCoroutinesApi
 class SearchViewModel(private val repository: BooksRepository): ViewModel() {
 
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val _status = MutableLiveData<ApiStatus>()
-    val status: LiveData<ApiStatus>
-        get() = _status
 
     private var currentQueryValue: String? = null
     private var currentSearchResult: Flow<PagingData<Item>>? = null

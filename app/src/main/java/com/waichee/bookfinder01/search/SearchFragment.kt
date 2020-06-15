@@ -4,14 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import com.waichee.bookfinder01.Injection
 import com.waichee.bookfinder01.databinding.FragmentSearchBinding
 import com.waichee.bookfinder01.network.BooksRepository
+import com.waichee.bookfinder01.toVisibility
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -56,6 +59,41 @@ class SearchFragment : Fragment() {
                 }
             }
         }
+
+        adapter.addLoadStateListener {loadStates ->
+            if (loadStates.refresh !is LoadState.NotLoading) {
+                // is Loading
+                binding.recyclerViewBookList.visibility = View.GONE
+                binding.progressBar.visibility = toVisibility(loadStates.refresh is LoadState.Loading)
+                binding.retryButton.visibility = toVisibility(loadStates.refresh is LoadState.Error)
+            } else {
+                // not loading
+                binding.recyclerViewBookList.visibility = View.VISIBLE
+                binding.progressBar.visibility = View.GONE
+                binding.retryButton.visibility = View.GONE
+
+                val errorState = when {
+                    loadStates.append is LoadState.Error -> {
+                        loadStates.append as LoadState.Error
+                    }
+                    loadStates.prepend is LoadState.Error -> {
+                        loadStates.prepend as LoadState.Error
+                    }
+                    else -> {
+                        null
+                    }
+                }
+                errorState?.let {
+                    Toast.makeText(
+                        this.context,
+                        "\uD83D\uDE28 Wooops ${it.error}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
+        }
+
 
         return binding.root
     }
