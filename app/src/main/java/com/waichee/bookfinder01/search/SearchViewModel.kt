@@ -32,8 +32,6 @@ class SearchViewModel(private val repository: BooksRepository): ViewModel() {
     private var currentQueryValue: String? = null
     private var currentSearchResult: Flow<PagingData<Item>>? = null
 
-
-
     fun search(queryString: String): Flow<PagingData<Item>> {
         val lastResult = currentSearchResult
         if (queryString == currentQueryValue && lastResult != null) {

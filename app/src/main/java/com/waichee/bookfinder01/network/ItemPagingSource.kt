@@ -17,16 +17,11 @@ class ItemPagingSource(
         val position = params.key ?: STARTING_INDEX
 
         return try {
-
-            Timber.i("Trying")
-
-            val response = service.getResultPaged(
+            val response = service.getResultPagedAsync(
                 keyword = query,
                 startIndex = position,
                 maxResults = params.loadSize).await()
             val books = response.items
-
-            Timber.i(books.toString())
 
             LoadResult.Page(
                 data = books,

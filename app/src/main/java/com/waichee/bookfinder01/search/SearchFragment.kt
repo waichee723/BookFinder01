@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.waichee.bookfinder01.Injection
 import com.waichee.bookfinder01.databinding.FragmentSearchBinding
 import com.waichee.bookfinder01.network.BooksRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -19,10 +20,12 @@ import kotlinx.coroutines.launch
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
+    @ExperimentalCoroutinesApi
     private lateinit var viewModel: SearchViewModel
     private var searchJob: Job? = null
     private val adapter = BookListAdapter()
 
+    @ExperimentalCoroutinesApi
     private fun search(query: String) {
         searchJob?.cancel()
         searchJob = lifecycleScope.launch {
@@ -32,6 +35,7 @@ class SearchFragment : Fragment() {
         }
     }
 
+    @ExperimentalCoroutinesApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSearchBinding.inflate(inflater)
 
@@ -39,14 +43,19 @@ class SearchFragment : Fragment() {
             .get(SearchViewModel::class.java)
 
 
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
         binding.recyclerViewBookList.adapter = adapter
 
-        search("harry")
-
-
+        binding.searchButton.setOnClickListener {
+            binding.recyclerViewBookList.scrollToPosition(0)
+            binding.searchInput.text.trim().let {
+                if (it.isNotEmpty()) {
+                    search(it.toString())
+                }
+            }
+        }
 
         return binding.root
     }

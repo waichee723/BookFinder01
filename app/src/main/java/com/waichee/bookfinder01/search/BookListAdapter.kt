@@ -41,6 +41,4 @@ class BookListAdapter : PagingDataAdapter<Item, ViewHolder>(DiffCallback) {
             binding.executePendingBindings()
         }
     }
-
-
 }
