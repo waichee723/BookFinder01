@@ -1,66 +1,48 @@
 package com.waichee.bookfinder01.search
 
-import android.util.Log
-import android.widget.EditText
-import android.widget.TextView
-import androidx.databinding.Bindable
-import androidx.databinding.BindingAdapter
-import androidx.databinding.InverseBindingAdapter
-import androidx.databinding.InverseMethod
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.waichee.bookfinder01.network.BooksApi
+import androidx.paging.PagedList
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.waichee.bookfinder01.network.BooksRepository
 import com.waichee.bookfinder01.network.model.BookApiResponse
 import com.waichee.bookfinder01.network.model.Item
-import com.waichee.bookfinder01.search.ApiStatus.DONE
-import com.waichee.bookfinder01.search.ApiStatus.ERROR
-import com.waichee.bookfinder01.search.ApiStatus.LOADING
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
-enum class ApiStatus { LOADING, DONE, ERROR}
+enum class ApiStatus { LOADING, DONE, ERROR }
 
-class SearchViewModel : ViewModel() {
+@ExperimentalCoroutinesApi
+class SearchViewModel(private val repository: BooksRepository): ViewModel() {
 
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-
-    private val _response = MutableLiveData<BookApiResponse?>()
-    val response: LiveData<BookApiResponse?>
-        get() = _response
-
 
     private val _status = MutableLiveData<ApiStatus>()
     val status: LiveData<ApiStatus>
         get() = _status
 
+    private var currentQueryValue: String? = null
+    private var currentSearchResult: Flow<PagingData<Item>>? = null
 
-    var searchString: String = ""
 
 
-    private fun getBookApiResponse(keyword: String) {
-        coroutineScope.launch {
-            val getBooksApiResponseDeferred = BooksApi.retrofitService.getResult(keyword)
-            try {
-                _status.value = LOADING
-                val result = getBooksApiResponseDeferred.await()
-                _status.value = DONE
-                _response.value = result
-                Log.i("SearchVM", result.toString())
-            } catch (e: Exception) {
-                _status.value = ERROR
-                Log.i("SearchVM", "$e.message")
-            }
+    fun search(queryString: String): Flow<PagingData<Item>> {
+        val lastResult = currentSearchResult
+        if (queryString == currentQueryValue && lastResult != null) {
+            return lastResult
         }
-    }
-
-    fun search() {
-        getBookApiResponse(searchString)
-        Log.i("SearchVM", "new search")
+        currentQueryValue = queryString
+        val newResult: Flow<PagingData<Item>> = repository.getSearchResult(queryString).cachedIn(coroutineScope)
+        currentSearchResult = newResult
+        return newResult
     }
 
     override fun onCleared() {

@@ -5,6 +5,8 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import androidx.paging.PagedList
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import com.waichee.bookfinder01.R.drawable.ic_launcher_background
@@ -15,18 +17,18 @@ import com.waichee.bookfinder01.search.ApiStatus.ERROR
 import com.waichee.bookfinder01.search.ApiStatus.LOADING
 import com.waichee.bookfinder01.search.BookListAdapter
 
-@BindingAdapter("numberOfResults")
-fun TextView.setNumberOfResult(number: Int?) {
-    number?.let {
-        text = "Number of results: $number"
-    }
-}
+//@BindingAdapter("numberOfResults")
+//fun TextView.setNumberOfResult(number: Int?) {
+//    number?.let {
+//        text = "Number of results: $number"
+//    }
+//}
 
-@BindingAdapter("listData")
-fun bindRecyclerView(recyclerView: RecyclerView, data: List<Item>?) {
-    val adapter = recyclerView.adapter as BookListAdapter
-    adapter.submitList(data)
-}
+//@BindingAdapter("listData")
+//fun bindRecyclerView(recyclerView: RecyclerView, data: PagingData<Item>?) {
+//    val adapter = recyclerView.adapter as BookListAdapter
+//    adapter.submitData(lifecycle = )
+//}
 
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?) {

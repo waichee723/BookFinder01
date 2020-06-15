@@ -6,31 +6,50 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
+import com.waichee.bookfinder01.Injection
 import com.waichee.bookfinder01.databinding.FragmentSearchBinding
+import com.waichee.bookfinder01.network.BooksRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class SearchFragment : Fragment() {
-    private val viewModel: SearchViewModel by lazy {
-        ViewModelProviders.of(this).get(SearchViewModel::class.java)
+
+    private lateinit var binding: FragmentSearchBinding
+    private lateinit var viewModel: SearchViewModel
+    private var searchJob: Job? = null
+    private val adapter = BookListAdapter()
+
+    private fun search(query: String) {
+        searchJob?.cancel()
+        searchJob = lifecycleScope.launch {
+            viewModel.search(query).collectLatest {
+                adapter.submitData(it)
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = FragmentSearchBinding.inflate(inflater)
+        binding = FragmentSearchBinding.inflate(inflater)
+
+        viewModel = ViewModelProvider(this, Injection.provideViewModelFactory())
+            .get(SearchViewModel::class.java)
+
 
         binding.setLifecycleOwner(this)
         binding.viewModel = viewModel
 
-        val adapter = BookListAdapter()
         binding.recyclerViewBookList.adapter = adapter
 
-//        viewModel.response.observe(viewLifecycleOwner, Observer {
-//            it?.let {
-//                adapter.submitList(it.items)
-//            }
-//        })
+        search("harry")
 
 
 
         return binding.root
     }
+
+
 }

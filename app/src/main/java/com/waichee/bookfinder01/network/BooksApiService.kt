@@ -27,7 +27,15 @@ private val retrofit = Retrofit.Builder()
 
 interface BooksApiService {
     @GET("volumes")
-    fun getResult(@Query("q") type: String):
+    fun getResult(
+        @Query("q") type: String):
+            Deferred<BookApiResponse>
+
+    @GET("volumes")
+    fun getResultPaged(
+        @Query("q") keyword: String,
+        @Query("startIndex") startIndex: Int,
+        @Query("maxResults") maxResults: Int):
             Deferred<BookApiResponse>
 }
 
@@ -36,3 +44,4 @@ object BooksApi {
         retrofit.create(BooksApiService::class.java)
     }
 }
+

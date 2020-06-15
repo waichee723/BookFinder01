@@ -2,13 +2,16 @@ package com.waichee.bookfinder01.search
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.waichee.bookfinder01.databinding.ListItemBookBinding
 import com.waichee.bookfinder01.network.model.Item
+import com.waichee.bookfinder01.search.BookListAdapter.ViewHolder
 
-class BookListAdapter : ListAdapter<Item, BookListAdapter.ViewHolder>(DiffCallback) {
+class BookListAdapter : PagingDataAdapter<Item, ViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(ListItemBookBinding.inflate(LayoutInflater.from(parent.context)))
@@ -16,9 +19,10 @@ class BookListAdapter : ListAdapter<Item, BookListAdapter.ViewHolder>(DiffCallba
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val book = getItem(position)
-        holder.bind(book)
+        book?.let {
+            holder.bind(it)
+        }
     }
-
 
     companion object DiffCallback: DiffUtil.ItemCallback<Item>() {
         override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean {

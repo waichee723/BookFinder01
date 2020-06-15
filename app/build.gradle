@@ -68,4 +68,10 @@ dependencies {
 
     // RecyclerView
     implementation "androidx.recyclerview:recyclerview:$version_recyclerview"
+
+    // Pagination
+    implementation "androidx.paging:paging-runtime:$version_paging"
+
+    // logging
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 }
